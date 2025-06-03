@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 const testRegister = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/auth/register', {
+    const response = await fetch('https://qtrade-apibacktunder.krkzfx.easypanel.host/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
