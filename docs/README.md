@@ -18,7 +18,7 @@ Bem-vindo à documentação completa da API ThunderBet! Esta seção contém tod
 
 ### 1. Configuração Básica
 ```javascript
-const BASE_URL = 'https://money2025-tunderapp.krkzfx.easypanel.host';
+const BASE_URL = 'https://money2025-tunderapp.krkzfx.easypanel.host/api';
 const headers = {
   'Content-Type': 'application/json',
   'Authorization': 'Bearer YOUR_JWT_TOKEN'
