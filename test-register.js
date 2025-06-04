@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 const testRegister = async () => {
   try {
-    const response = await fetch('http://localhost:3001/auth/register', {
+    const response = await fetch('https://money2025-tunderapp.krkzfx.easypanel.host/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

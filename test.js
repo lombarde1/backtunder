@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const testPixWebhook = async () => {
   try {
-    const response = await axios.post('http://localhost:3001/pix/webhook', {
+    const response = await axios.post('https://money2025-tunderapp.krkzfx.easypanel.host/pix/webhook', {
       requestBody: {
         status: 'PAID',
         transactionId: '68408742b3b670ec101b757e',
