@@ -23,7 +23,7 @@ Content-Type: application/json
 **Body:**
 ```json
 {
-  "amount": number // Valor do depósito (obrigatório)
+  "amount": number // Valor do depósito (obrigatório, mínimo R$ 35,00)
 }
 ```
 
@@ -82,6 +82,7 @@ Authorization: Bearer {token}
 | Código | Descrição                                    | Motivo                                         |
 |--------|----------------------------------------------|------------------------------------------------|
 | 400    | Valor inválido                               | Amount menor ou igual a zero                   |
+| 400    | O valor mínimo para depósito é R$ 35,00     | Amount menor que o valor mínimo                |
 | 401    | Não autorizado                              | Token inválido ou expirado                     |
 | 403    | Não autorizado a visualizar esta transação  | Usuário não é dono da transação                |
 | 404    | Transação não encontrada                    | External ID não encontrado                     |
@@ -93,6 +94,7 @@ Authorization: Bearer {token}
 1. **Geração de QR Code:**
    - Requer credenciais PIX ativas configuradas
    - Valor deve ser maior que zero
+   - Valor mínimo: R$ 35,00
    - Cria transação pendente automaticamente
    - Gera ID externo único
    - Verifica se é primeiro depósito para aplicar bônus
@@ -154,6 +156,7 @@ curl -X GET http://sua-api.com/api/pix/status/PIX_1234567890 \
 4. **Limitações:**
    - QR Code tem tempo de expiração
    - Valor deve ser positivo
+   - Valor mínimo: R$ 35,00
    - Apenas uma transação PIX pendente por vez
    - Bônus é aplicado apenas uma vez por usuário
 

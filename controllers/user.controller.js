@@ -81,6 +81,30 @@ export const getUserProfile = async (req, res) => {
   }
 };
 
+// Helper function para normalizar localização
+const normalizeLocation = (location) => {
+  if (!location) return null;
+  
+  const normalized = location.trim();
+  
+  // Se já está no formato novo, retornar como está
+  if (normalized === 'Nacional' || normalized === 'Internacional') {
+    return normalized;
+  }
+  
+  // Converter valores antigos para o novo formato
+  if (normalized === 'Brasil' || normalized.toLowerCase() === 'brasil') {
+    return 'Nacional';
+  }
+  
+  // Qualquer outro valor considera como Internacional
+  if (normalized && normalized !== '') {
+    return 'Internacional';
+  }
+  
+  return null;
+};
+
 // @desc    Atualizar perfil do usuário logado
 // @route   PUT /api/users/profile
 // @access  Private
@@ -98,7 +122,14 @@ export const updateUserProfile = async (req, res) => {
     // Atualizar campos permitidos
     if (req.body.name) user.name = req.body.name;
     if (req.body.email) user.email = req.body.email;
-    if (req.body.location) user.location = req.body.location;
+    
+    // Normalizar localização
+    if (req.body.location !== undefined) {
+      const normalizedLocation = normalizeLocation(req.body.location);
+      if (normalizedLocation) {
+        user.location = normalizedLocation;
+      }
+    }
 
     const updatedUser = await user.save();
 
@@ -149,7 +180,7 @@ export const getUserById = async (req, res) => {
 // @access  Private/Admin
 export const updateUser = async (req, res) => {
   try {
-    const { fullName, email, phone, cpf, status, role, balance, location } = req.body;
+    const { name, fullName, email, phone, cpf, status, role, balance, location } = req.body;
 
     const user = await User.findById(req.params.id);
 
@@ -171,14 +202,22 @@ export const updateUser = async (req, res) => {
       }
     }
 
-    // Atualizar usuário
-    user.name = fullName || user.name;
-    user.email = email || user.email;
-    user.phone = phone || user.phone;
-    user.cpf = cpf || user.cpf;
-    user.status = status || user.status;
-    user.role = role || user.role;
-    user.location = location || user.location;
+    // Atualizar usuário - aceitar tanto 'name' quanto 'fullName' para compatibilidade
+    const newName = name || fullName;
+    if (newName) user.name = newName;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (cpf) user.cpf = cpf;
+    if (status) user.status = status;
+    if (role) user.role = role;
+    
+    // Normalizar localização
+    if (location !== undefined) {
+      const normalizedLocation = normalizeLocation(location);
+      if (normalizedLocation) {
+        user.location = normalizedLocation;
+      }
+    }
     
     // Apenas atualizar o saldo se for explicitamente fornecido
     if (balance !== undefined) {

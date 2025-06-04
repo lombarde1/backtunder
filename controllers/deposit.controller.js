@@ -23,10 +23,10 @@ export const depositWithCreditCard = async (req, res) => {
         });
       }
   
-      if (amount < 27) {
+      if (amount < 35) {
         return res.status(400).json({
           success: false,
-          message: 'O valor mínimo para depósito é R$ 27,00'
+          message: 'O valor mínimo para depósito é R$ 35,00'
         });
       }
   

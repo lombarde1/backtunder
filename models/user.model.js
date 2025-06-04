@@ -45,8 +45,11 @@ const userSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    default: 'Brasil',
-    trim: true
+    default: 'Nacional',
+    trim: true,
+    // Valores aceitos: 'Nacional' (Brasil) ou 'Internacional' (outros países)
+    // Valores antigos como 'Brasil' ou nomes de países são automaticamente 
+    // convertidos para 'Nacional' ou 'Internacional' pelos controllers
   },
   role: {
     type: String,

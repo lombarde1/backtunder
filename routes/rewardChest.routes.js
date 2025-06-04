@@ -3,7 +3,8 @@ import {
   initializeRewardChests,
   getUserRewardChests,
   openRewardChest,
-  getRewardChestStats
+  getRewardChestStats,
+  fixChestAmounts
 } from '../controllers/rewardChest.controller.js';
 import { verifyToken, isAdmin } from '../middleware/auth.js';
 
@@ -19,5 +20,6 @@ router.post('/:chestNumber/open', openRewardChest);
 
 // Rotas administrativas
 router.get('/stats', isAdmin, getRewardChestStats);
+router.post('/fix-amounts', fixChestAmounts); // Rota para corrigir valores (debug)
 
 export default router; 

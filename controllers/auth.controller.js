@@ -122,6 +122,7 @@ export const register = async (req, res) => {
       email: finalEmail,
       name: finalName.trim(),
       cpf: finalCpf,
+      location: 'Nacional', // Definir como padrão Nacional para novos usuários
       role: 'USER',
       status: 'ACTIVE'
     };
@@ -140,6 +141,7 @@ export const register = async (req, res) => {
         username: user.username,
         email: user.email,
         name: user.name,
+        location: user.location,
         role: user.role,
         token,
       },
@@ -200,12 +202,13 @@ export const login = async (req, res) => {
     if (!phone || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Por favor, forneça telefone e senha',
+        message: 'Por favor, informe telefone e senha',
       });
     }
 
-    // Buscar usuário
-    const user = await User.findOne({ phone });
+    // Buscar usuário e incluir a senha para comparação
+    const user = await User.findOne({ phone }).select('+password');
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -214,15 +217,16 @@ export const login = async (req, res) => {
     }
 
     // Verificar senha
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    const isPasswordValid = await user.comparePassword(password);
+
+    if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
         message: 'Credenciais inválidas',
       });
     }
 
-    // Verificar se usuário está ativo
+    // Verificar se o usuário está ativo
     if (user.status !== 'ACTIVE') {
       return res.status(401).json({
         success: false,
@@ -245,7 +249,14 @@ export const login = async (req, res) => {
         username: user.username,
         email: user.email,
         name: user.name,
+        cpf: user.cpf,
+        balance: user.balance,
+        location: user.location,
         role: user.role,
+        status: user.status,
+        lastLogin: user.lastLogin,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
         token,
       },
     });
@@ -253,7 +264,7 @@ export const login = async (req, res) => {
     console.error('Erro no login:', error);
     res.status(500).json({
       success: false,
-      message: 'Erro ao fazer login',
+      message: 'Erro interno do servidor',
     });
   }
 };

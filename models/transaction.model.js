@@ -79,9 +79,10 @@ transactionSchema.post('save', async function () {
       await user.save();
       console.log(`Saldo atualizado para usuário ${user._id}: ${user.balance}`);
     } else if (this.type === 'BONUS') {
-      // Para bônus dos baús de recompensa, não adicionar +10 extra
-      // O valor já foi calculado e adicionado no controlador
-      console.log(`Bônus aplicado para usuário ${user._id}: ${this.amount}`);
+      // Atualizar saldo para bônus dos baús de recompensa
+      user.balance += this.amount;
+      await user.save();
+      console.log(`Bônus aplicado para usuário ${user._id}: ${this.amount} - Novo saldo: ${user.balance}`);
     } else if (this.type === 'BET' && user.balance >= this.amount) {
       user.balance -= this.amount;
       await user.save();

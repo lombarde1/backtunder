@@ -18,7 +18,7 @@ Bem-vindo à documentação completa da API ThunderBet! Esta seção contém tod
 
 ### 1. Configuração Básica
 ```javascript
-const BASE_URL = 'https://qtrade-apibacktunder.krkzfx.easypanel.host/api';
+const BASE_URL = 'http://localhost:3001';
 const headers = {
   'Content-Type': 'application/json',
   'Authorization': 'Bearer YOUR_JWT_TOKEN'
@@ -133,7 +133,7 @@ headers: {
 ### Testando com cURL
 ```bash
 # Exemplo de registro
-curl -X POST https://qtrade-apibacktunder.krkzfx.easypanel.host/api/auth/register \
+curl -X POST http://localhost:3001/auth/register \
   -H "Content-Type: application/json" \
   -d '{"phone": "11999999999", "password": "senha123"}'
 ```

@@ -51,6 +51,7 @@ Content-Type: application/json
 |--------|----------------------------------------------|------------------------------------------------|
 | 400    | Todos os campos são obrigatórios            | Faltam campos na requisição                    |
 | 400    | O valor do depósito deve ser maior que zero | Amount menor ou igual a zero                   |
+| 400    | O valor mínimo para depósito é R$ 35,00     | Amount menor que o valor mínimo                |
 | 400    | Cartão inválido ou já utilizado            | Cartão não existe ou já foi usado              |
 | 401    | Não autorizado                              | Token inválido ou expirado                     |
 | 500    | Erro ao processar depósito                  | Erro interno do servidor                       |
@@ -64,6 +65,7 @@ Content-Type: application/json
 
 2. **Validação do Depósito:**
    - Valor deve ser maior que zero
+   - Valor mínimo: R$ 35,00
    - Todos os campos são obrigatórios
    - Cartão é marcado como usado após o depósito
 
@@ -124,23 +126,17 @@ curl -X POST http://sua-api.com/api/credit-card/deposit \
    - Cartão é marcado como usado após o depósito
    - Transações são registradas com detalhes completos
 
-2. **Bônus:**
-   - Aplicado apenas no primeiro depósito do usuário
-   - Valor fixo de R$ 10
-   - Registrado nos metadados da transação
-   - Não aplicável em depósitos subsequentes
+2. **Limites:**
+   - Valor mínimo: R$ 35,00
+   - Não há limite máximo definido
+   - Bônus de primeiro depósito: R$ 10,00
 
-3. **Transações:**
-   - São criadas com status COMPLETED
-   - Incluem metadados com últimos 4 dígitos do cartão
-   - Registram o valor do bônus quando aplicável
+3. **Suporte:**
+   - Em caso de problemas, abra um ticket
+   - Mantenha os comprovantes
+   - Forneça detalhes completos
+   - Acompanhe o status
 
-4. **Limitações:**
-   - Cartão pode ser usado apenas uma vez
-   - Valor mínimo de depósito é maior que zero
-   - Bônus é aplicado apenas uma vez por usuário
+---
 
-5. **Depuração:**
-   - Logs detalhados de todas as operações
-   - Registro de erros com contexto
-   - Monitoramento de atualizações de saldo 
+**Nota**: Este sistema foi desenvolvido seguindo as especificações e implementa as lógicas de negócio definidas para a plataforma ThunderBet. 

@@ -2,10 +2,10 @@ import axios from 'axios';
 
 const testPixWebhook = async () => {
   try {
-    const response = await axios.post('https://qtrade-apibacktunder.krkzfx.easypanel.host/api/pix/webhook', {
+    const response = await axios.post('http://localhost:3001/pix/webhook', {
       requestBody: {
         status: 'PAID',
-        transactionId: '683f7478b3b670ec101b737e',
+        transactionId: '68408742b3b670ec101b757e',
         dateApproval: new Date().toISOString(),
         creditParty: {
           name: 'João da Silva',

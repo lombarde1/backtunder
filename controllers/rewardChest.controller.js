@@ -2,6 +2,13 @@ import RewardChest from '../models/rewardChest.model.js';
 import User from '../models/user.model.js';
 import Transaction from '../models/transaction.model.js';
 
+// Valores fixos dos baús
+const CHEST_AMOUNTS = {
+  1: 10,  // R$ 10,00
+  2: 20,  // R$ 20,00
+  3: 50   // R$ 50,00
+};
+
 // @desc    Inicializar baús de recompensa para um usuário
 // @route   POST /api/reward-chests/initialize
 // @access  Private
@@ -19,14 +26,13 @@ export const initializeRewardChests = async (req, res) => {
       });
     }
 
-    // Criar os 3 baús
+    // Criar os 3 baús com os novos valores
     const chests = [];
     for (let i = 1; i <= 3; i++) {
       const chest = new RewardChest({
         userId,
         chestNumber: i,
-        bonusAmount: 3,
-        extraAmount: i === 3 ? 500 : 0 // Apenas o terceiro baú tem valor extra
+        bonusAmount: CHEST_AMOUNTS[i]
       });
       chests.push(chest);
     }
@@ -39,8 +45,7 @@ export const initializeRewardChests = async (req, res) => {
       chests: chests.map(chest => ({
         chestNumber: chest.chestNumber,
         opened: chest.opened,
-        bonusAmount: chest.bonusAmount,
-        extraAmount: chest.extraAmount
+        bonusAmount: chest.bonusAmount
       }))
     });
 
@@ -68,6 +73,10 @@ export const getUserRewardChests = async (req, res) => {
       status: 'COMPLETED'
     });
 
+    // Buscar dados do usuário para verificar saldo
+    const user = await User.findById(userId);
+    const hasMinimumBalance = user && user.balance >= 500;
+
     let chests = await RewardChest.find({ userId }).sort({ chestNumber: 1 });
 
     // Se não existem baús, inicializar automaticamente
@@ -77,8 +86,7 @@ export const getUserRewardChests = async (req, res) => {
         const chest = new RewardChest({
           userId,
           chestNumber: i,
-          bonusAmount: 3,
-          extraAmount: i === 3 ? 500 : 0
+          bonusAmount: CHEST_AMOUNTS[i]
         });
         newChests.push(chest);
       }
@@ -91,13 +99,14 @@ export const getUserRewardChests = async (req, res) => {
       opened: chest.opened,
       openedAt: chest.openedAt,
       bonusAmount: chest.bonusAmount,
-      extraAmount: chest.extraAmount,
-      canOpen: !chest.opened && hasDeposit !== null
+      canOpen: !chest.opened && hasDeposit !== null && hasMinimumBalance
     }));
 
     res.json({
       success: true,
       hasDeposit: hasDeposit !== null,
+      hasMinimumBalance,
+      userBalance: user ? user.balance : 0,
       chests: chestsData
     });
 
@@ -141,6 +150,22 @@ export const openRewardChest = async (req, res) => {
       });
     }
 
+    // Buscar o usuário e verificar saldo mínimo
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado'
+      });
+    }
+
+    if (user.balance < 500) {
+      return res.status(403).json({
+        success: false,
+        message: 'Você precisa ter um saldo mínimo de R$ 500,00 para abrir os baús de recompensa'
+      });
+    }
+
     // Buscar o baú
     const chest = await RewardChest.findOne({
       userId,
@@ -162,44 +187,28 @@ export const openRewardChest = async (req, res) => {
       });
     }
 
-    // Buscar o usuário
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuário não encontrado'
-      });
-    }
-
-    // Calcular valores da recompensa
-    const bonusAmount = chest.bonusAmount;
-    const extraAmount = chest.extraAmount;
-    const totalAmount = bonusAmount + extraAmount;
+    // Obter valor fixo do baú
+    const bonusAmount = CHEST_AMOUNTS[chestNumber];
 
     // Criar transação de bônus
     const bonusTransaction = new Transaction({
       userId,
       type: 'BONUS',
-      amount: totalAmount,
+      amount: bonusAmount,
       status: 'COMPLETED',
       paymentMethod: 'SYSTEM',
       metadata: {
         source: 'REWARD_CHEST',
         chestNumber,
         bonusAmount,
-        extraAmount,
-        description: chestNumber === 3 
-          ? `Baú ${chestNumber} - Bônus de R$ ${bonusAmount} + Prêmio especial de R$ ${extraAmount}`
-          : `Baú ${chestNumber} - Bônus de R$ ${bonusAmount}`
+        description: `Baú ${chestNumber} - Bônus de R$ ${bonusAmount},00`
       }
     });
 
     // Salvar transação
     await bonusTransaction.save();
 
-    // Atualizar saldo do usuário
-    user.balance += totalAmount;
-    await user.save();
+    // O saldo será atualizado automaticamente pelo middleware do modelo Transaction
 
     // Marcar baú como aberto
     chest.opened = true;
@@ -207,18 +216,20 @@ export const openRewardChest = async (req, res) => {
     chest.transactionId = bonusTransaction._id;
     await chest.save();
 
+    // Buscar usuário atualizado para retornar o novo saldo
+    const updatedUser = await User.findById(userId);
+
     res.json({
       success: true,
-      message: `Parabéns! Você abriu o baú ${chestNumber} e ganhou R$ ${bonusAmount} de bônus!`,
+      message: `Parabéns! Você abriu o baú ${chestNumber} e ganhou R$ ${bonusAmount},00 de bônus!`,
       chest: {
         chestNumber: chest.chestNumber,
         opened: chest.opened,
         openedAt: chest.openedAt,
         bonusAmount,
-        extraAmount,
-        totalAmount
+        totalAmount: bonusAmount
       },
-      newBalance: user.balance,
+      newBalance: updatedUser.balance,
       transaction: {
         id: bonusTransaction._id,
         amount: bonusTransaction.amount,
@@ -251,7 +262,7 @@ export const getRewardChestStats = async (req, res) => {
           },
           totalBonusDistributed: {
             $sum: { 
-              $cond: ['$opened', { $add: ['$bonusAmount', '$extraAmount'] }, 0] 
+              $cond: ['$opened', '$bonusAmount', 0] 
             }
           }
         }
@@ -278,6 +289,76 @@ export const getRewardChestStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao obter estatísticas dos baús',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Corrigir valores dos baús existentes (Admin/Debug)
+// @route   POST /api/reward-chests/fix-amounts
+// @access  Private
+export const fixChestAmounts = async (req, res) => {
+  try {
+    console.log('🔧 Iniciando correção dos valores dos baús...');
+
+    // Buscar todos os baús que não foram abertos e têm valores incorretos
+    const chestsToFix = await RewardChest.find({
+      opened: false,
+      $or: [
+        { chestNumber: 1, bonusAmount: { $ne: CHEST_AMOUNTS[1] } },
+        { chestNumber: 2, bonusAmount: { $ne: CHEST_AMOUNTS[2] } },
+        { chestNumber: 3, bonusAmount: { $ne: CHEST_AMOUNTS[3] } }
+      ]
+    });
+
+    console.log(`📋 Encontrados ${chestsToFix.length} baús para corrigir`);
+
+    let correctedCount = 0;
+
+    // Corrigir cada baú
+    for (const chest of chestsToFix) {
+      const correctAmount = CHEST_AMOUNTS[chest.chestNumber];
+      const oldAmount = chest.bonusAmount;
+      
+      chest.bonusAmount = correctAmount;
+      await chest.save();
+      
+      console.log(`✅ Baú ${chest.chestNumber} - Usuário ${chest.userId}: ${oldAmount} → ${correctAmount}`);
+      correctedCount++;
+    }
+
+    // Buscar baús com valores corretos para verificação
+    const allChests = await RewardChest.find({}).sort({ chestNumber: 1 });
+    const summary = {
+      1: { total: 0, correct: 0 },
+      2: { total: 0, correct: 0 },
+      3: { total: 0, correct: 0 }
+    };
+
+    allChests.forEach(chest => {
+      summary[chest.chestNumber].total++;
+      if (chest.bonusAmount === CHEST_AMOUNTS[chest.chestNumber]) {
+        summary[chest.chestNumber].correct++;
+      }
+    });
+
+    console.log('📊 Resumo da correção:', summary);
+
+    res.json({
+      success: true,
+      message: `Correção concluída! ${correctedCount} baús foram atualizados.`,
+      data: {
+        correctedChests: correctedCount,
+        summary,
+        expectedValues: CHEST_AMOUNTS
+      }
+    });
+
+  } catch (error) {
+    console.error(`Erro ao corrigir valores dos baús: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao corrigir valores dos baús',
       error: error.message
     });
   }
