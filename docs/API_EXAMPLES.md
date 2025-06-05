@@ -14,7 +14,7 @@ const headers = {
 
 ### Base URL
 ```javascript
-const BASE_URL = 'https://money2025-tunderapp.krkzfx.easypanel.host/api';
+const BASE_URL = 'https://money2025-thunder02.krkzfx.easypanel.host/api';
 ```
 
 ---
