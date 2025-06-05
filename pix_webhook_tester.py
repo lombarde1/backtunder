@@ -19,7 +19,7 @@ class PixWebhookTester:
         self.setup_styles()
         
         # URL base da API
-        self.api_url = "https://money2025-thunder02.krkzfx.easypanel.host"
+        self.api_url = "https://money2025-thunder03.krkzfx.easypanel.host"
         
         # Criar interface
         self.create_widgets()
