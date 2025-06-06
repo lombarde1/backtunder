@@ -65,7 +65,7 @@ API RESTful para a casa de apostas ThunderBet.
 
 ### Base URL
 ```
-https://money2025-thunder04.krkzfx.easypanel.host
+https://money2025-thunder05.krkzfx.easypanel.host/
 ```
 
 ### Autenticação

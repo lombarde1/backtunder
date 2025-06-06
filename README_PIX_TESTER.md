@@ -33,7 +33,7 @@ python pix_webhook_tester.py
 ## 🎯 Como Usar
 
 ### 1. **Configurações**
-- **URL da API**: Por padrão `https://money2025-thunder04.krkzfx.easypanel.host` (ajuste se necessário)
+- **URL da API**: Por padrão `https://money2025-thunder05.krkzfx.easypanel.host/` (ajuste se necessário)
 - **Transaction ID**: ID da transação PIX (pré-preenchido com exemplo)
 - **Valor Pago**: Valor que simula o pagamento real (padrão R$ 35,00)
 
