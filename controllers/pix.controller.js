@@ -99,7 +99,7 @@ export const generatePixQrCode = async (req, res) => {
     
     // Enviar evento PIX Gerado para UTMify (não bloqueia o fluxo)
     try {
-      await UtmifyService.sendPixGeneratedEvent(transaction, user);
+   //   await UtmifyService.sendPixGeneratedEvent(transaction, user);
       console.log('📊 Evento PIX Gerado enviado para UTMify com sucesso');
     } catch (error) {
       console.error('⚠️ Falha ao enviar evento PIX Gerado para UTMify:', error.message);
