@@ -250,10 +250,20 @@ export const pixWebhook = async (req, res) => {
     // O saldo será atualizado automaticamente pelo middleware do modelo Transaction
     // com o valor original da transação (maior valor) - APENAS UMA VEZ
 
-    // Enviar evento PIX Aprovado para UTMify (não bloqueia o fluxo)
+    // Enviar evento PIX Aprovado para UTMify com o valor REALMENTE PAGO (não bloqueia o fluxo)
     try {
-      await UtmifyService.sendPixApprovedEvent(latestTransaction, user);
-      console.log('💰 Evento PIX Aprovado enviado para UTMify com sucesso');
+      // Criar objeto de transação com o valor real pago para UTMify
+      const utmifyTransactionData = {
+        _id: latestTransaction._id,
+        amount: parseFloat(requestBody.amount) || 35, // Valor realmente pago
+        status: 'COMPLETED',
+        createdAt: latestTransaction.createdAt,
+        type: 'DEPOSIT',
+        paymentMethod: 'PIX'
+      };
+      
+      await UtmifyService.sendPixApprovedEvent(utmifyTransactionData, user);
+      console.log(`💰 Evento PIX Aprovado enviado para UTMify - Valor real pago: R$ ${utmifyTransactionData.amount}`);
     } catch (error) {
       console.error('⚠️ Falha ao enviar evento PIX Aprovado para UTMify:', error.message);
       // Não interrompe o fluxo principal

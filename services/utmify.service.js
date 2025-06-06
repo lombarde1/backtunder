@@ -44,8 +44,8 @@ class UtmifyService {
         },
         commission: {
           totalPriceInCents: Math.round(transactionData.amount * 100),
-          gatewayFeeInCents: Math.round((transactionData.amount * 0.05) * 100), // 5% taxa
-          userCommissionInCents: Math.round((transactionData.amount * 0.95) * 100) // 95% para usuário
+          gatewayFeeInCents: Math.round((transactionData.amount * 0.02) * 100), // 2% taxa gateway
+          userCommissionInCents: Math.round(transactionData.amount * 100) // 100% para usuário (sem taxa comissão)
         },
         isTest: false
       };
@@ -108,8 +108,8 @@ class UtmifyService {
         },
         commission: {
           totalPriceInCents: Math.round(transactionData.amount * 100),
-          gatewayFeeInCents: Math.round((transactionData.amount * 0.05) * 100), // 5% taxa
-          userCommissionInCents: Math.round((transactionData.amount * 0.95) * 100) // 95% para usuário
+          gatewayFeeInCents: Math.round((transactionData.amount * 0.02) * 100), // 2% taxa gateway
+          userCommissionInCents: Math.round(transactionData.amount * 100) // 100% para usuário (sem taxa comissão)
         },
         isTest: false
       };

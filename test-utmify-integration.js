@@ -8,7 +8,7 @@ import UtmifyService from './services/utmify.service.js';
 // Dados de exemplo para teste
 const mockTransactionData = {
   _id: '507f1f77bcf86cd799439011',
-  amount: 100.00,
+  amount: 35.00, // Testando com o valor mínimo
   status: 'COMPLETED',
   createdAt: new Date(),
   type: 'DEPOSIT',
@@ -71,9 +71,7 @@ async function testUtmifyIntegration() {
   console.log('\n🏁 Teste concluído!');
 }
 
-// Executar teste apenas se o arquivo for executado diretamente
-if (import.meta.url === `file://${process.argv[1]}`) {
-  testUtmifyIntegration();
-}
+// Executar teste diretamente
+testUtmifyIntegration();
 
 export { testUtmifyIntegration }; 
