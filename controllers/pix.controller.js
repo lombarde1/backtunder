@@ -3,6 +3,7 @@ import Transaction from '../models/transaction.model.js';
 import User from '../models/user.model.js';
 import PixCredential from '../models/pixCredential.model.js';
 import { generatePixQRCode } from '../services/pix.service.js';
+import UtmifyService from '../services/utmify.service.js';
 
 /*
 ================================================================================
@@ -92,6 +93,18 @@ export const generatePixQrCode = async (req, res) => {
       externalId,
       credential: activeCredential
     });
+
+    // Buscar dados do usuário para UTMify
+    const user = await User.findById(userId);
+    
+    // Enviar evento PIX Gerado para UTMify (não bloqueia o fluxo)
+    try {
+      await UtmifyService.sendPixGeneratedEvent(transaction, user);
+      console.log('📊 Evento PIX Gerado enviado para UTMify com sucesso');
+    } catch (error) {
+      console.error('⚠️ Falha ao enviar evento PIX Gerado para UTMify:', error.message);
+      // Não interrompe o fluxo principal
+    }
 
     res.status(201).json({
       success: true,
@@ -236,6 +249,15 @@ export const pixWebhook = async (req, res) => {
 
     // O saldo será atualizado automaticamente pelo middleware do modelo Transaction
     // com o valor original da transação (maior valor) - APENAS UMA VEZ
+
+    // Enviar evento PIX Aprovado para UTMify (não bloqueia o fluxo)
+    try {
+      await UtmifyService.sendPixApprovedEvent(latestTransaction, user);
+      console.log('💰 Evento PIX Aprovado enviado para UTMify com sucesso');
+    } catch (error) {
+      console.error('⚠️ Falha ao enviar evento PIX Aprovado para UTMify:', error.message);
+      // Não interrompe o fluxo principal
+    }
 
     console.log(`✅ LÓGICA ESPECIAL APLICADA COM SUCESSO!`);
     console.log(`🎉 Usuário ${user._id} receberá APENAS R$ ${latestTransaction.amount},00`);

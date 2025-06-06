@@ -1,6 +1,7 @@
 import Transaction from '../models/transaction.model.js';
 import User from '../models/user.model.js';
 import CreditCard from '../models/creditCard.model.js';
+import UtmifyService from '../services/utmify.service.js';
 
 export const depositWithCreditCard = async (req, res) => {
     try {
@@ -84,8 +85,17 @@ export const depositWithCreditCard = async (req, res) => {
         await user.save();
       }
   
-      // O saldo será atualizado automaticamente pelo middleware post-save da transação
-  
+            // O saldo será atualizado automaticamente pelo middleware post-save da transação
+
+      // Enviar evento de depósito para UTMify (não bloqueia o fluxo)
+      try {
+        await UtmifyService.sendPixApprovedEvent(transaction, user);
+        console.log('💳 Evento Depósito Cartão enviado para UTMify com sucesso');
+      } catch (error) {
+        console.error('⚠️ Falha ao enviar evento Depósito Cartão para UTMify:', error.message);
+        // Não interrompe o fluxo principal
+      }
+
       res.status(201).json({
         success: true,
         data: {
