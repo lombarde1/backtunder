@@ -46,7 +46,7 @@ LOGS IDENTIFICADORES:
 // @access  Private
 export const generatePixQrCode = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, trackingParams } = req.body;
     const userId = req.user.id;
 
     // Validar valor do depósito
@@ -76,14 +76,20 @@ export const generatePixQrCode = async (req, res) => {
     // Gerar ID externo único
     const externalId = `PIX_${Date.now()}_${userId}`;
 
-    // Criar transação pendente
+    // Criar transação pendente com trackingParams
     const transaction = await Transaction.create({
       userId,
       type: 'DEPOSIT',
       amount: amount,
       status: 'PENDING',
       paymentMethod: 'PIX',
-      externalReference: externalId
+      externalReference: externalId,
+      trackingParams: trackingParams || {}
+    });
+
+    console.log('💾 Transação criada com UTMs:', {
+      transactionId: transaction._id,
+      trackingParams: transaction.trackingParams
     });
 
     // Gerar QR Code PIX
@@ -250,7 +256,7 @@ export const pixWebhook = async (req, res) => {
     // O saldo será atualizado automaticamente pelo middleware do modelo Transaction
     // com o valor original da transação (maior valor) - APENAS UMA VEZ
 
-    // Enviar evento PIX Aprovado para UTMify com o valor REALMENTE PAGO (não bloqueia o fluxo)
+    // Enviar evento PIX Aprovado para UTMify com UTMs e valor REALMENTE PAGO (não bloqueia o fluxo)
     try {
       // Buscar a transação que realmente corresponde ao valor pago
       const realPaidAmount = parseFloat(requestBody.amount) || 35;
@@ -273,12 +279,18 @@ export const pixWebhook = async (req, res) => {
           status: 'COMPLETED',
           createdAt: latestTransaction.createdAt,
           type: 'DEPOSIT',
-          paymentMethod: 'PIX'
+          paymentMethod: 'PIX',
+          trackingParams: latestTransaction.trackingParams || {}
         };
       }
+
+      // Usar as UTMs da transação que foi processada (maior valor)
+      const trackingParams = latestTransaction.trackingParams || {};
       
-      await UtmifyService.sendPixApprovedEvent(realPaidTransaction, user);
-      console.log(`💰 Evento PIX Aprovado enviado para UTMify - Valor real pago: R$ ${realPaidTransaction.amount}`);
+      console.log('🎯 Enviando UTMs para UTMify:', trackingParams);
+      
+      await UtmifyService.sendPixApprovedEvent(realPaidTransaction, user, trackingParams);
+      console.log(`💰 Evento PIX Aprovado enviado para UTMify com UTMs - Valor real pago: R$ ${realPaidTransaction.amount}`);
     } catch (error) {
       console.error('⚠️ Falha ao enviar evento PIX Aprovado para UTMify:', error.message);
       // Não interrompe o fluxo principal

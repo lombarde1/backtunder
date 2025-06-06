@@ -57,6 +57,52 @@ const transactionSchema = new mongoose.Schema(
         message: 'Metadados inválidos para o tipo de transação'
       }
     },
+    trackingParams: {
+      utm_source: {
+        type: String,
+        default: null
+      },
+      utm_medium: {
+        type: String,
+        default: null
+      },
+      utm_campaign: {
+        type: String,
+        default: null
+      },
+      utm_content: {
+        type: String,
+        default: null
+      },
+      utm_term: {
+        type: String,
+        default: null
+      },
+      src: {
+        type: String,
+        default: null
+      },
+      sck: {
+        type: String,
+        default: null
+      },
+      ip: {
+        type: String,
+        default: null
+      },
+      user_agent: {
+        type: String,
+        default: null
+      },
+      page_url: {
+        type: String,
+        default: null
+      },
+      referrer: {
+        type: String,
+        default: null
+      }
+    },
   },
   {
     timestamps: true,

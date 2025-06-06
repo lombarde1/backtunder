@@ -18,6 +18,7 @@ import creditCardRoutes from './routes/creditCard.routes.js';
 import transactionRoutes from './routes/transaction.routes.js';
 import pixCredentialRoutes from './routes/pixCredential.routes.js';
 import rewardChestRoutes from './routes/rewardChest.routes.js';
+import trackingRoutes from './routes/tracking.routes.js';
 
 // Configuração do dotenv
 dotenv.config();
@@ -49,6 +50,7 @@ app.use('/api/pix-credentials', pixCredentialRoutes);
 app.use('/api/credit-card', creditCardRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/reward-chests', rewardChestRoutes);
+app.use('/api/tracking', trackingRoutes);
 
 // Rota de teste
 app.get('/', (req, res) => {
