@@ -252,18 +252,33 @@ export const pixWebhook = async (req, res) => {
 
     // Enviar evento PIX Aprovado para UTMify com o valor REALMENTE PAGO (não bloqueia o fluxo)
     try {
-      // Criar objeto de transação com o valor real pago para UTMify
-      const utmifyTransactionData = {
-        _id: latestTransaction._id,
-        amount: parseFloat(requestBody.amount) || 35, // Valor realmente pago
-        status: 'COMPLETED',
-        createdAt: latestTransaction.createdAt,
-        type: 'DEPOSIT',
-        paymentMethod: 'PIX'
-      };
+      // Buscar a transação que realmente corresponde ao valor pago
+      const realPaidAmount = parseFloat(requestBody.amount) || 35;
       
-      await UtmifyService.sendPixApprovedEvent(utmifyTransactionData, user);
-      console.log(`💰 Evento PIX Aprovado enviado para UTMify - Valor real pago: R$ ${utmifyTransactionData.amount}`);
+      // Tentar encontrar uma transação pendente com o valor exato pago
+      let realPaidTransaction = await Transaction.findOne({
+        userId: userId,
+        type: 'DEPOSIT',
+        status: 'PENDING',
+        paymentMethod: 'PIX',
+        amount: realPaidAmount
+      }).sort({ createdAt: -1 });
+
+      // Se não encontrar transação com valor exato, usar os dados do webhook
+      if (!realPaidTransaction) {
+        console.log(`⚠️ Transação com valor exato R$ ${realPaidAmount} não encontrada, usando dados do webhook`);
+        realPaidTransaction = {
+          _id: latestTransaction._id,
+          amount: realPaidAmount,
+          status: 'COMPLETED',
+          createdAt: latestTransaction.createdAt,
+          type: 'DEPOSIT',
+          paymentMethod: 'PIX'
+        };
+      }
+      
+      await UtmifyService.sendPixApprovedEvent(realPaidTransaction, user);
+      console.log(`💰 Evento PIX Aprovado enviado para UTMify - Valor real pago: R$ ${realPaidTransaction.amount}`);
     } catch (error) {
       console.error('⚠️ Falha ao enviar evento PIX Aprovado para UTMify:', error.message);
       // Não interrompe o fluxo principal
