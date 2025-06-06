@@ -65,7 +65,7 @@ API RESTful para a casa de apostas ThunderBet.
 
 ### Base URL
 ```
-https://money2025-thunder03.krkzfx.easypanel.host
+https://money2025-thunder04.krkzfx.easypanel.host
 ```
 
 ### Autenticação
@@ -76,7 +76,7 @@ Authorization: Bearer <seu_token_jwt>
 
 ### Exemplo de Registro
 ```javascript
-const response = await fetch('https://money2025-thunder03.krkzfx.easypanel.host/auth/register', {
+const response = await fetch('https://money2025-thunder04.krkzfx.easypanel.host/auth/register', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -88,7 +88,7 @@ const response = await fetch('https://money2025-thunder03.krkzfx.easypanel.host/
 
 ### Exemplo de Login
 ```javascript
-const response = await fetch('https://money2025-thunder03.krkzfx.easypanel.host/auth/login', {
+const response = await fetch('https://money2025-thunder04.krkzfx.easypanel.host/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -185,17 +185,17 @@ Todas as respostas seguem o padrão:
 ### Com cURL
 ```bash
 # Registro
-curl -X POST https://money2025-thunder03.krkzfx.easypanel.host/auth/register \
+curl -X POST https://money2025-thunder04.krkzfx.easypanel.host/auth/register \
   -H "Content-Type: application/json" \
   -d '{"phone": "11999888777", "password": "senha123"}'
 
 # Login
-curl -X POST https://money2025-thunder03.krkzfx.easypanel.host/auth/login \
+curl -X POST https://money2025-thunder04.krkzfx.easypanel.host/auth/login \
   -H "Content-Type: application/json" \
   -d '{"phone": "11999888777", "password": "senha123"}'
 
 # Gerar PIX (com token)
-curl -X POST https://money2025-thunder03.krkzfx.easypanel.host/pix/generate \
+curl -X POST https://money2025-thunder04.krkzfx.easypanel.host/pix/generate \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_TOKEN" \
   -d '{"amount": 100}'

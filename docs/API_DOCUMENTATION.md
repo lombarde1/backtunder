@@ -4,7 +4,7 @@
 
 A API ThunderBet é uma plataforma de apostas online que oferece funcionalidades completas para gerenciamento de usuários, jogos, apostas, transações financeiras e sistema de recompensas.
 
-**Base URL:** `https://money2025-thunder03.krkzfx.easypanel.host`
+**Base URL:** `https://money2025-thunder04.krkzfx.easypanel.host`
 
 ## Autenticação
 
